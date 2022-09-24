@@ -11,16 +11,28 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var button: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val button: Button = findViewById(R.id.btn)
+         button = findViewById(R.id.btn)
 
-        checkPermission()
-
+        if (isCallPhonePermissionAvailable()) {
+            Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
+            button.isVisible = true
+        } else {
+            checkPermission()
+        }
+        button.setOnClickListener {
+            callPhone()
+        }
     }
+
+    // 1
 
     private fun checkPermission() {
         val list = mutableListOf<String>()
@@ -56,53 +68,54 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_CONTACTS
         ) == PackageManager.PERMISSION_GRANTED
 
-    private fun requestCallPhonePermission2() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.CALL_PHONE
-            )
-        ) {
-            AlertDialog.Builder(this).apply {
-                setTitle("Permission")
-                setMessage("You should allow permission!")
-                setPositiveButton("Ok") { di, _ ->
-                    ActivityCompat.requestPermissions(
-                        this@MainActivity,
-                        arrayOf(Manifest.permission.CALL_PHONE),
-                        100
-                    )
-                    di.dismiss()
-                }
-            }.create().show()
-        } else {
-            ActivityCompat.requestPermissions(
-                this@MainActivity,
-                arrayOf(Manifest.permission.CALL_PHONE),
-                100
-            )
-        }
-    }
-
+//    private fun requestCallPhonePermission2() {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(
+//                this,
+//                Manifest.permission.CALL_PHONE
+//            )
+//        ) {
+//            AlertDialog.Builder(this).apply {
+//                setTitle("Permission")
+//                setMessage("You should allow permission!")
+//                setPositiveButton("Ok") { di, _ ->
+//                    requestPer()
+//                    di.dismiss()
+//                }
+//            }.create().show()
+//        } else {
+//            requestPer()
+//        }
+//    }
+//
     private fun isCallPhonePermissionAvailable() =
-        ActivityCompat.checkSelfPermission(
+        ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.isNotEmpty()) {
-            for (i in grantResults.indices) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    Log.d("@@@","${grantResults[i]}")
-                }
-            }
-        }
-    }
+//
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == 100) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
+//                    button.isVisible = true
+//            } else {
+//                requestPer()
+//            }
+//        }
+//    }
+//
+//    private fun requestPer() {
+//        ActivityCompat.requestPermissions(
+//            this@MainActivity,
+//            arrayOf(Manifest.permission.CALL_PHONE),
+//            100
+//        )
+//    }
 
     private fun callPhone() {
         val phoneNumber = Uri.parse("tel:+998901739003")
