@@ -28,7 +28,6 @@ class SecondActivity : AppCompatActivity(), PermissionListener {
         setContentView(R.layout.activity_second)
 
         button = findViewById(R.id.button)
-
         Dexter.withContext(this)
             .withPermission(Manifest.permission.CALL_PHONE)
             .withListener(this)
@@ -41,21 +40,18 @@ class SecondActivity : AppCompatActivity(), PermissionListener {
 
     override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
         Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-        alertDialog()
-    }
-
-    override fun onPermissionRationaleShouldBeShown(p0: PermissionRequest?, p1: PermissionToken?) {
-        p1?.continuePermissionRequest()
-    }
-    private fun alertDialog() {
-        AlertDialog.Builder(this).apply {
-            setTitle("Permission")
-            setMessage("You should allow permission!")
-            setPositiveButton("Ok") { di, _ ->
-                ActivityCompat.requestPermissions(this@SecondActivity, arrayOf(Manifest.permission.CALL_PHONE), 0)
+        AlertDialog.Builder(this)
+            .setTitle("Permission")
+            .setMessage("You should allow this permission to call your friends")
+            .setPositiveButton("Ok") { di, _ ->
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), 100)
                 di.dismiss()
             }
-        }.create().show()
+            .create().show()
+    }
+
+    override fun onPermissionRationaleShouldBeShown(p0: PermissionRequest?, permission: PermissionToken?) {
+        permission?.continuePermissionRequest()
     }
 
     override fun onRequestPermissionsResult(
@@ -64,17 +60,12 @@ class SecondActivity : AppCompatActivity(), PermissionListener {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 100 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "You should allow permission!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "You should allow permission", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", packageName, null)
-            intent.data = uri
-            intent.addCategory(Intent.CATEGORY_DEFAULT)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+            intent.data = Uri.fromParts("package", packageName, null)
             startActivity(intent)
         }
     }
